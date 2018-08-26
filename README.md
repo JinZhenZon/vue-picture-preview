@@ -79,3 +79,14 @@ img {
 
 * **isTitleEnable**: (boolean, optional) 设置 _preview-title-enable="false"_ 将禁用底部标题. 默认值: true.
 * **isHorizontalNavEnable**: (boolean, optional) 设置 _preview-nav-enable="false"_ 将禁用水平导航. 默认值: true.
+* **isCurrentAndAllTitle**：(boolean,optional) 设置 preview-title-extend=false 将底部标题(当前页/总页数)类型进行关闭(开启时isTitleEnable)将无效。默认值：true
+* **isTopTitleShow**：(boolean,optional) 设置preview-top-title-tnable=false 将顶部标题禁用,默认值：true.
+* **topTitle**:(string,optional) 设置data-title 设置顶部标题文本，无默认值
+## update
+
+- 新增底部标题类型(原有类型、indexPage/totalPage)
+- 新增顶部标题，取设置的data-title设置的值
+- 新增左右滑动切换图片
+## expectation 
+* 根据组来渲染预览图片的组（比如：我页面有十组想预览的，点击某一组，只预览一组的，本版本想更新，但是遇到一点小问题，需要和作者探讨下在开发） *
+* 根据手指实时滑动切换图片（当前版本滑动是完成后执行切换图片，下个版本会更新实时） *
