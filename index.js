@@ -12,8 +12,9 @@ export default {
                         show: false,
                         loading : true,
                         current: {
-                            title: '',
-                            src: ''
+                            bottomTitle: '',
+                            src: '',
+                            topTitle:""
                         },
                         list: []
                     }
@@ -29,6 +30,7 @@ export default {
             list.forEach(function (item, index) {
                 item.index = index + 1
             })
+
         }
 
         function getImage (src, previewItem) {
@@ -52,17 +54,21 @@ export default {
         Vue.directive('preview', {
             bind: function (el) {
                 var previewItem = {
-                    title: '',
+                    bottomTitle: '',
+                    topTitle:'',
                     el: el,
                     index: 0,
                     src: ''
                 }
-                LOGIC_EVENT_BUS.LOGIC_PREVIEW.list.push(previewItem)
+                console.log(previewItem)
+                // LOGIC_EVENT_BUS.LOGIC_PREVIEW.list.push(previewItem)
                 updateIndex(LOGIC_EVENT_BUS.LOGIC_PREVIEW.list)
                 el.addEventListener('click', function (e) {
                     e.stopPropagation()
                     LOGIC_EVENT_BUS.LOGIC_PREVIEW.isTitleEnable = el.getAttribute('preview-title-enable')== "false" ? false : true;
                     LOGIC_EVENT_BUS.LOGIC_PREVIEW.isHorizontalNavEnable = el.getAttribute('preview-nav-enable')== "false" ? false : true;
+                    LOGIC_EVENT_BUS.LOGIC_PREVIEW.isCurrentAndAllTitle = el.getAttribute('preview-title-extend') == "false"?false:true;
+                    LOGIC_EVENT_BUS.LOGIC_PREVIEW.isTopTitleShow = el.getAttribute('preview-top-title-tnable') == "false"?false:true;
                     LOGIC_EVENT_BUS.LOGIC_PREVIEW.show = true
                     LOGIC_EVENT_BUS.LOGIC_PREVIEW.loading = true
                     LOGIC_EVENT_BUS.LOGIC_PREVIEW.current = previewItem
@@ -75,7 +81,8 @@ export default {
                 })
                 if (!previewItem) return
                 previewItem.src = oldValue.value
-                previewItem.title = el.alt
+                previewItem.bottomTitle = el.alt
+                previewItem.topTitle = el.getAttribute("data-title")
             },
             unbind: function (el) {
                 if (el) {

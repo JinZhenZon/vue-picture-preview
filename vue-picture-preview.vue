@@ -1,7 +1,10 @@
 <template>
     <transition name="fade">
-        <div class="lg-preview-wrapper" v-show="preview.show" @click="leave" @touchmove.prevent>
+        <div class="lg-preview-wrapper" v-show="preview.show" @click="leave" @touchmove.prevent @touchstart = "starttouch" @touchend = "endtouch">
             <div class="lg-preview-loading" v-show="preview.loading"><div></div></div>
+            <div class = "lg-preview-top-title" v-if="preview.isTopTitleShow" v-show="!preview.loading">
+              {{preview.current.topTitle}}
+            </div>
             <img
                 class="lg-preview-img"
                 v-if="preview.current.src"
@@ -9,14 +12,27 @@
                 :alt="preview.current.title"
                 v-show="!preview.loading"
             >
-            <div class="lg-preview-title" v-if="preview.isTitleEnable&&preview.current.title" v-show="!preview.loading">
-                {{preview.current.title}}
+            <!-- 
+              - 增加一个字段isCurrentAndAllTitle 用于改变标题的类型 
+              - 字段默认为true  为true时候可以 判断使得该标题改为当前页/总页数
+
+             -->
+            <div class="lg-preview-bottom-title" v-if="preview.isCurrentAndAllTitle" v-show="!preview.loading">
+                {{preview.current.index}}/{{preview.list.length}}
             </div>
+            <div class="lg-preview-bottom-title" v-if="!preview.isCurrentAndAllTitle && preview.isTitleEnable" v-show="!preview.loading">
+                {{preview.current.bottomTitle}}
+            </div>
+
+
             <div class="lg-preview-nav-left" v-if="preview.isHorizontalNavEnable" v-show="!preview.loading">
                 <span class="lg-preview-nav-arrow" @click="preAction" ></span>
             </div>
             <div class="lg-preview-nav-right" v-if="preview.isHorizontalNavEnable" v-show="!preview.loading">
                 <span class="lg-preview-nav-arrow" @click="nextAction"></span>
+            </div>
+            <div  class = "tipStyle" v-show = "tipShow && !preview.loading">
+                {{tipText}}
             </div>
         </div>
     </transition>
@@ -25,6 +41,14 @@
 <script>
 export default {
     name: 'Preview',
+    data(){
+      return {
+        startX :"",
+        endX :"",
+        tipShow:false,
+        tipText:"",
+      }
+    },
     computed: {
         preview () {
             return window.LOGIC_EVENT_BUS.LOGIC_PREVIEW
@@ -43,6 +67,11 @@ export default {
             this.preview.loading = true
             var index = this.preview.list.indexOf(this.preview.current)
             if (index === 0) {
+                this.tipShow = true;
+                this.tipText = "前面没有更多了";
+                setTimeout(()=>{
+                  this.tipShow = false;
+                },1500)
                 this.preview.loading = false
                 return
             }
@@ -60,6 +89,12 @@ export default {
             this.preview.loading = true
             var index = this.preview.list.indexOf(this.preview.current)
             if (index === this.preview.list.length - 1) {
+                this.tipText = "后面没有更多了";
+                this.tipShow = true;
+                setTimeout(()=>{
+                  this.tipShow = false;
+                },1500)
+
                 this.preview.loading = false
                 return
             }
@@ -73,6 +108,22 @@ export default {
                 },500)
             }
         },
+        /**
+         * @desc 此处只取一根手指 防止有人喜欢两根手指滑动，暂时不处理缩放
+         */
+        starttouch(event){
+          this.startX = event.changedTouches[0].clientX
+        },
+        
+        endtouch(event){
+          this.endX = event.changedTouches[0].clientX
+          if(this.endX > this.startX){
+            this.preAction();
+          }
+          if(this.endX < this.startX){
+            this.nextAction();
+          }
+        },
     }
 }
 </script>
@@ -85,7 +136,21 @@ export default {
 .fade-enter, .fade-leave-active {
     opacity: 0
 }
-
+.tipStyle{
+  font-size:12px;
+  text-align:center;
+  line-height:36px;
+  position:fixed;
+  top:50%;
+  left:50%;
+  margin-top:-12px;
+  margin-left:-15%;
+  width:30%;
+  border-radius:7px;
+  background:rgba(0,0,0,.8);
+  color:#fff;
+  z-index:3;
+}
 .lg-preview-wrapper {
     position: fixed;
     top: 0;
@@ -195,7 +260,7 @@ export default {
     transform: rotate(135deg);
 }
 
-.lg-preview-title {
+.lg-preview-bottom-title {
     position: absolute;
     left: 0;
     bottom: 0;
@@ -207,6 +272,21 @@ export default {
     font-size: 16px;
     height: 40px;
     line-height: 40px;
+    z-index:1
+}
+.lg-preview-top-title {
+    position: fixed;
+    left: 0;
+    top: 0;
+    text-align: center;
+    width: 100%;
+    color: #fff;
+    background: rgba(0, 0, 0, .5);
+    box-sizing: border-box;
+    font-size: 16px;
+    height: 40px;
+    line-height: 40px;
+    z-index:1
 }
 
 @media all and (max-width: 768px) {
